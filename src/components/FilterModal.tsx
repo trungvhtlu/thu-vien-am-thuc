@@ -27,10 +27,6 @@ export const FilterModal: React.FC<FilterModalProps> = ({ isOpen, onClose }) => 
       options: ['Có chỗ đỗ ô tô', 'Có điều hòa', 'Phù hợp trẻ em', 'Có phòng riêng', 'Thanh toán thẻ', 'Có quầy bar', 'Phù hợp gia đình', 'Bãi để xe máy', 'Vỉa hè', 'Phù hợp ăn đêm']
     },
     {
-      title: 'Danh hiệu/Giải thưởng',
-      options: ['Quán ăn lâu đời', 'Top Review VnE']
-    },
-    {
       title: 'Cẩm nang Michelin',
       options: ['Michelin Guide', 'Bib Gourmand', 'Một sao Michelin', 'Selected']
     }

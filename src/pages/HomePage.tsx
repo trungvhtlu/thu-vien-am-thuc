@@ -28,6 +28,7 @@ import kienGiangImage from '../assets/images/kien_giang_1783475385985.jpg';
 
 export const HomePage = () => {
   const [activeRegion, setActiveRegion] = useState('Tất cả');
+  const [activeMichelinLocation, setActiveMichelinLocation] = useState('Tất cả');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   
   const regions = ['Tất cả', 'Miền Bắc', 'Miền Trung', 'Miền Nam', 'Tây Nguyên'];
@@ -35,6 +36,22 @@ export const HomePage = () => {
   const filteredRestaurants = activeRegion === 'Tất cả' 
     ? mockRestaurants 
     : mockRestaurants.filter(r => r.regionalFlavor === activeRegion);
+
+  const filteredMichelinRestaurants = mockRestaurants.filter(r => {
+    const isMichelin = r.awards.includes('Michelin Guide');
+    if (!isMichelin) return false;
+    
+    const normalizeProvince = (p: string) => {
+      if (p === 'TP.HCM' || p === 'TP HCM') return 'TP HCM';
+      return p;
+    };
+    
+    if (activeMichelinLocation === 'Tất cả') {
+      return ['Hà Nội', 'TP.HCM', 'TP HCM', 'Đà Nẵng'].includes(r.province);
+    } else {
+      return normalizeProvince(r.province) === activeMichelinLocation;
+    }
+  });
 
   // Group by province for the "Khu vực nổi bật" section
   const [popularProvinces, setPopularProvinces] = useState([
@@ -148,6 +165,58 @@ export const HomePage = () => {
         <div className="mt-6 text-center">
           <button className="bg-white border border-vne-border text-vne-title px-6 py-2 rounded-[2px] text-[14px] font-bold hover:bg-vne-bg transition-colors">
             Xem thêm
+          </button>
+        </div>
+      </section>
+
+      {/* Michelin Guide */}
+      <section>
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-4">
+          <div className="flex items-center gap-2">
+            <Award className="w-6 h-6 text-vne-red" />
+            <h2 className="text-[20px] font-bold text-vne-title border-b-[3px] border-vne-red pb-1 inline-block uppercase">
+              Michelin Guide
+            </h2>
+          </div>
+          
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+            {['Tất cả', 'Hà Nội', 'TP HCM', 'Đà Nẵng'].map(loc => (
+              <button
+                key={loc}
+                onClick={() => setActiveMichelinLocation(loc)}
+                className={`px-3 py-1.5 rounded-[2px] text-[13px] font-medium whitespace-nowrap transition-colors border ${
+                  activeMichelinLocation === loc 
+                    ? 'bg-vne-red text-white border-vne-red' 
+                    : 'bg-white text-vne-gray border-vne-border hover:text-vne-title'
+                }`}
+              >
+                {loc}
+              </button>
+            ))}
+            <button 
+              onClick={() => setIsFilterOpen(true)}
+              className="flex items-center px-3 py-1.5 rounded-[2px] bg-white border border-vne-border text-vne-gray text-[13px] ml-2 hover:bg-vne-bg"
+            >
+              <Filter className="w-4 h-4 mr-1" /> Bộ lọc
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {filteredMichelinRestaurants.length > 0 ? (
+            filteredMichelinRestaurants.map(restaurant => (
+              <RestaurantCard key={restaurant.id} restaurant={restaurant} layout="grid" />
+            ))
+          ) : (
+            <div className="col-span-full text-center py-12 bg-vne-bg rounded-[2px] border border-dashed border-vne-border">
+              <p className="text-vne-gray text-[14px]">Chưa có nhà hàng Michelin nào được cập nhật tại khu vực này.</p>
+            </div>
+          )}
+        </div>
+        
+        <div className="mt-8 text-center">
+          <button className="bg-white border border-vne-border text-vne-title px-6 py-2 rounded-[2px] text-[14px] font-bold hover:bg-vne-bg transition-colors">
+            Xem thêm địa điểm Michelin
           </button>
         </div>
       </section>
