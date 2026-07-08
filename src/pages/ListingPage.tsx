@@ -66,9 +66,13 @@ export const ListingPage = () => {
       });
       if (!isDishMatch) return false;
     }
-    // Fallback: just show restaurants in the province
-    if (provinceSlug && generateSlug(r.province) === provinceSlug) {
-      return true;
+    // Fallback: just show restaurants in the province or area
+    if (provinceSlug) {
+      const pSlug = generateSlug(r.province);
+      const aSlug = r.area ? generateSlug(r.area) : '';
+      if (pSlug === provinceSlug || aSlug === provinceSlug || (pSlug === 'tphcm' && provinceSlug === 'tp-hcm') || (pSlug === 'tp-hcm' && provinceSlug === 'tphcm')) {
+        return true;
+      }
     }
     return false;
   });

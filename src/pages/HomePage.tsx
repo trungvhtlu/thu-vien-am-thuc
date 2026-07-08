@@ -112,8 +112,10 @@ export const HomePage = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {filteredRestaurants.map(restaurant => (
-            <RestaurantCard key={restaurant.id} restaurant={restaurant} layout="grid" />
+          {filteredRestaurants.slice(0, 12).map((restaurant, index) => (
+            <div key={restaurant.id} className={index >= 8 ? 'hidden sm:block' : ''}>
+              <RestaurantCard restaurant={restaurant} layout="grid" />
+            </div>
           ))}
         </div>
         
@@ -204,8 +206,10 @@ export const HomePage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {filteredMichelinRestaurants.length > 0 ? (
-            filteredMichelinRestaurants.map(restaurant => (
-              <RestaurantCard key={restaurant.id} restaurant={restaurant} layout="grid" />
+            filteredMichelinRestaurants.slice(0, 12).map((restaurant, index) => (
+              <div key={restaurant.id} className={index >= 8 ? 'hidden sm:block' : ''}>
+                <RestaurantCard restaurant={restaurant} layout="grid" />
+              </div>
             ))
           ) : (
             <div className="col-span-full text-center py-12 bg-vne-bg rounded-[2px] border border-dashed border-vne-border">
