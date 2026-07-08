@@ -39,7 +39,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, layo
             </div>
             {restaurant.awards.includes('Michelin Guide') && (
               <div className="bg-vne-red text-white px-2 py-0.5 text-[10px] uppercase font-bold rounded-[2px]">
-                {restaurant.michelinGuide?.[0] || 'Michelin'}
+                {restaurant.michelinGuide?.[0] || 'Selected'}
               </div>
             )}
           </div>
@@ -59,7 +59,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant, layo
         />
         {restaurant.awards.includes('Michelin Guide') && (
           <div className="absolute top-2 left-2 bg-vne-red text-white px-2 py-0.5 text-[10px] uppercase font-bold rounded-[2px]">
-            MICHELIN
+            {restaurant.michelinGuide?.[0] || 'Selected'}
           </div>
         )}
       </Link>
