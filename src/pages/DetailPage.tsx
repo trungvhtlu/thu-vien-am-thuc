@@ -92,6 +92,74 @@ export const DetailPage = () => {
 
   const provinceSlug = generateSlug(restaurant.province);
 
+  const isRestaurantInCurrentProvince = (r: typeof mockRestaurants[0]) => {
+    const currentProvinceSlug = generateSlug(restaurant.province);
+    const pSlug = generateSlug(r.province);
+    const aSlug = r.area ? generateSlug(r.area) : '';
+    return pSlug === currentProvinceSlug || aSlug === currentProvinceSlug || (pSlug === 'tphcm' && currentProvinceSlug === 'tp-hcm') || (pSlug === 'tp-hcm' && currentProvinceSlug === 'tphcm');
+  };
+
+  const allDishes = [
+    { name: 'Phở', slug: 'quan-pho' },
+    { name: 'Mì Quảng', slug: 'quan-mi-quang' },
+    { name: 'Bánh xèo', slug: 'quan-banh-xeo' },
+    { name: 'Bún bò Huế', slug: 'quan-bun-bo-hue' },
+    { name: 'Bún chả', slug: 'quan-bun-cha' },
+    { name: 'Cơm tấm', slug: 'quan-com-tam' },
+    { name: 'Hủ tiếu', slug: 'quan-hu-tieu' },
+    { name: 'Lẩu gà lá é', slug: 'quan-lau-ga-la-e' },
+    { name: 'Bún đậu', slug: 'quan-bun-dau' },
+    { name: 'Bánh khọt', slug: 'quan-banh-khot' },
+    { name: 'Bánh cuốn', slug: 'quan-banh-cuon' },
+    { name: 'Gỏi cuốn', slug: 'quan-goi-cuon' },
+    { name: 'Bánh mì', slug: 'quan-banh-mi' },
+    { name: 'Bún riêu', slug: 'quan-bun-rieu' }
+  ];
+
+  const otherDishLists = allDishes.filter(d => {
+    const targetDishSlug = d.slug.replace('quan-', '');
+    
+    // Exclude the signature dishes of the current restaurant to show other dishes
+    const isCurrentRestaurantDish = restaurant.signatureDishes.some(sd => {
+      const sdSlug = generateSlug(sd);
+      return sdSlug.includes(targetDishSlug) || targetDishSlug.includes(sdSlug);
+    });
+    if (isCurrentRestaurantDish) return false;
+
+    return mockRestaurants.some(r => {
+      if (!isRestaurantInCurrentProvince(r)) return false;
+      return r.signatureDishes.some(sd => {
+        const sdSlug = generateSlug(sd);
+        return sdSlug.includes(targetDishSlug) || targetDishSlug.includes(sdSlug);
+      });
+    });
+  });
+
+  const otherListsWithData = otherDishLists.map(d => {
+    const targetDishSlug = d.slug.replace('quan-', '');
+    const matchingRestaurants = mockRestaurants.filter(r => {
+      if (!isRestaurantInCurrentProvince(r)) return false;
+      return r.signatureDishes.some(sd => {
+        const sdSlug = generateSlug(sd);
+        return sdSlug.includes(targetDishSlug) || targetDishSlug.includes(sdSlug);
+      });
+    });
+
+    const representativeImage = matchingRestaurants[0]?.thumbnail || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?auto=format&fit=crop&q=80&w=600';
+    
+    return {
+      name: d.name,
+      slug: d.slug,
+      count: matchingRestaurants.length,
+      image: representativeImage,
+      description: `Tổng hợp những địa chỉ bán ${d.name.toLowerCase()} ngon nức tiếng và chuẩn vị nhất tại ${restaurant.province}.`
+    };
+  }).slice(0, 4);
+
+  const otherRestaurantsAtLocation = mockRestaurants.filter(r => {
+    return isRestaurantInCurrentProvince(r) && r.id !== restaurant.id;
+  }).slice(0, 8);
+
   // States for Reviews
   const [reviews, setReviews] = useState<Review[]>([]);
   const [userReview, setUserReview] = useState<Review | null>(null);
@@ -857,6 +925,65 @@ export const DetailPage = () => {
           )}
         </div>
       </div>
+
+      {/* Danh sách nhà hàng khác */}
+      {otherListsWithData.length > 0 && (
+        <div className="mt-10">
+          <div className="flex items-baseline gap-2 border-b border-vne-border pb-3 mb-5">
+            <span className="w-1.5 h-5 bg-vne-red inline-block self-center mr-1"></span>
+            <h3 className="text-[18px] sm:text-[20px] font-bold text-vne-title">Danh sách nhà hàng khác</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            {otherListsWithData.map((list) => (
+              <Link 
+                key={list.slug} 
+                to={`/${provinceSlug}/${list.slug}`}
+                className="group flex gap-4 bg-white p-3 border border-vne-border hover:border-vne-red transition-all duration-200"
+              >
+                <div className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 overflow-hidden relative bg-[#eee]">
+                  <img 
+                    src={list.image} 
+                    alt={list.name} 
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute top-1 left-1 bg-vne-red text-white text-[10px] font-bold px-1.5 py-0.5 rounded-[2px]">
+                    {list.count} quán
+                  </div>
+                </div>
+                <div className="flex flex-col justify-between py-0.5 min-w-0 flex-1">
+                  <div>
+                    <h4 className="font-bold text-vne-title text-[14px] sm:text-[15px] leading-snug group-hover:text-vne-red transition-colors line-clamp-2">
+                      Top quán {list.name} ngon nhất tại {restaurant.province}
+                    </h4>
+                    <p className="text-vne-gray text-[11px] sm:text-[12px] mt-1 line-clamp-2 leading-relaxed">
+                      {list.description}
+                    </p>
+                  </div>
+                  <span className="text-vne-red text-[11px] sm:text-[12px] font-bold group-hover:underline flex items-center gap-1 mt-1">
+                    Xem danh sách →
+                  </span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Các nhà hàng khác tại cùng địa điểm */}
+      {otherRestaurantsAtLocation.length > 0 && (
+        <div className="mt-10 mb-8">
+          <div className="flex items-baseline gap-2 border-b border-vne-border pb-3 mb-5">
+            <span className="w-1.5 h-5 bg-vne-red inline-block self-center mr-1"></span>
+            <h3 className="text-[18px] sm:text-[20px] font-bold text-vne-title">Các nhà hàng khác tại cùng địa điểm</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {otherRestaurantsAtLocation.map(r => (
+              <RestaurantCard key={r.id} restaurant={r} layout="grid" />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
